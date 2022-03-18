@@ -1,4 +1,51 @@
+#board {
+  width: 540px;
+  height: 540px;
+}
+.cell {
+  transition: transform 0.2s ease-in-out;
+  transform: scale(0.8);
+  background-image: url("./fancyballs.jpg");
+  background-size: 180px;
+}
+.selected {
+  transition: transform 0.2s ease-in-out;
+  transform: scale(0.95);
+}
 #board,
-#board > td {
+#board > tr > td {
   border-collapse: collapse;
+  border: 1px solid black;
+}
+.none {
+  background-color: white;
+  background-image: none;
+}
+.white {
+  background-color: purple;
+  background-position: -1px -2.5px;
+}
+.gray {
+  background-color: gray;
+  background-position: 60px -2px;
+}
+.red {
+  background-color: red;
+  background-position: 120px -2px;
+}
+.green {
+  background-color: green;
+  background-position: 0px 62px;
+}
+.orange {
+  background-color: orange;
+  background-position: 60px 61.8px;
+}
+.yellow {
+  background-color: yellow;
+  background-position: 120px 61.8px;
+}
+.blue {
+  background-color: blue;
+  background-position: 0px 122px;
 }
