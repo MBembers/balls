@@ -1,3 +1,7 @@
+body,
+.cell {
+  /* background-color: rgb(29, 29, 73); */
+}
 #board {
   width: 540px;
   height: 540px;
@@ -17,8 +21,11 @@
   border-collapse: collapse;
   border: 1px solid black;
 }
+.path {
+  background-color: crimson;
+}
 .none {
-  background-color: white;
+  /* background-color: rgb(29, 29, 73); */
   background-image: none;
 }
 .white {

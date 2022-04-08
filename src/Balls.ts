@@ -1,4 +1,6 @@
 import * as consts from "./consts";
+import { Pathfinder } from "./Pathfinder";
+import { coords } from "./interfaces";
 export default class Balls {
   board: number[][];
   tableDOM: HTMLTableElement;
@@ -7,10 +9,13 @@ export default class Balls {
   rowsnum: number = 9;
   isSelected: boolean = false;
   selectedCell: HTMLTableCellElement;
+  selectedCoords: coords;
+  pathfinder: Pathfinder;
 
   constructor(tid: string) {
     this.tableDOM = document.getElementById(tid) as HTMLTableElement;
     this.createEmpty();
+    this.pathfinder = new Pathfinder(this.board);
     this.listeners();
     this.render();
   }
@@ -31,10 +36,11 @@ export default class Balls {
       }
       this.tableDOM.appendChild(row);
     }
+    this.board[0][0] = 1;
   }
   render() {
     // this.board[5][5] = 3;
-    console.table(this.board);
+    // console.table(this.board);
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
         this.cells[i][j].className =
@@ -71,7 +77,7 @@ export default class Balls {
         y = Math.floor(Math.random() * this.rowsnum);
         x = Math.floor(Math.random() * this.colsnum);
       }
-      console.log("color, y, x:", color, y, x);
+      // console.log("color, y, x:", color, y, x);
       this.board[y][x] = color;
     }
   }
@@ -84,23 +90,54 @@ export default class Balls {
       this.clear();
       this.render();
     });
+    document.getElementById("find").addEventListener("click", () => {
+      this.pathfinder.findShortestPath(
+        { x: 0, y: 0 },
+        { x: 8, y: 8 },
+        this.board
+      );
+    });
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
         let cell = this.cells[i][j];
         cell.addEventListener("click", (e) => {
-          if (this.isSelected) {
-            this.selectedCell.classList.remove("selected");
-            if (this.selectedCell == cell) {
-              this.isSelected = false;
-              this.selectedCell = null;
+          if (this.board[i][j] !== 0) {
+            if (this.isSelected) {
+              this.selectedCell.classList.remove("selected");
+              if (this.selectedCell == cell) {
+                this.isSelected = false;
+                this.selectedCell = null;
+              } else {
+                cell.classList.add("selected");
+                this.selectedCell = cell;
+                this.selectedCoords = { x: j, y: i };
+              }
             } else {
               cell.classList.add("selected");
+              this.isSelected = true;
               this.selectedCell = cell;
+              this.selectedCoords = { x: j, y: i };
             }
-          } else {
-            this.isSelected = true;
-            this.selectedCell = cell;
-            cell.classList.add("selected");
+          }
+        });
+        // cell.addEventListener("mouseleave", () => {
+        //   for (let row of this.cells)
+        //     for (let c of row) c.classList.remove("path");
+        // });
+        cell.addEventListener("mouseenter", () => {
+          for (let row of this.cells)
+            for (let c of row) c.classList.remove("path");
+
+          // console.log(j, i);
+          if (this.isSelected) {
+            let path: coords[] = this.pathfinder.findShortestPath(
+              this.selectedCoords,
+              { x: j, y: i },
+              this.board
+            );
+            for (let cellCoords of path) {
+              this.cells[cellCoords.y][cellCoords.x].classList.add("path");
+            }
           }
         });
       }
