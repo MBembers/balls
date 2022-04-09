@@ -6,6 +6,11 @@ body,
   width: 540px;
   height: 540px;
 }
+#query {
+  height: 60px;
+  min-width: 180px;
+  margin-bottom: 20px;
+}
 .cell {
   transition: transform 0.2s ease-in-out;
   transform: scale(0.8);
@@ -16,14 +21,21 @@ body,
   transition: transform 0.2s ease-in-out;
   transform: scale(0.95);
 }
-#board,
-#board > tr > td {
+table,
+table > tr > td {
   border-collapse: collapse;
   border: 1px solid black;
 }
 .path {
   background-color: crimson;
 }
+
+#points {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 20pt;
+  margin: 2px 0px 2px 0px;
+}
+
 .none {
   /* background-color: rgb(29, 29, 73); */
   background-image: none;

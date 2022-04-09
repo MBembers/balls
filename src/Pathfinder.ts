@@ -26,9 +26,6 @@ export class Pathfinder {
     this.found = false;
     if (matrix) this.setMatrix(matrix);
 
-    // console.log("BALLS");
-    // console.table(matrix);
-
     let ended = false;
     let toCheck: coords[] = [];
 
@@ -76,19 +73,13 @@ export class Pathfinder {
       if (!didChange) ended = true;
       currStep++;
     }
-    console.log("PATHS", this.found);
-    // console.table(this.searchMatrix);
     if (this.found) {
       let currX = this.end.x;
       let currY = this.end.y;
       let path: coords[] = [];
       currStep = this.searchMatrix[currY][currX];
-      console.table(this.searchMatrix);
       while (!(start.x == currX && start.y == currY)) {
-        // console.log("start:", start.x, start.y);
         let stepped = false;
-        console.log("curr:", currX, currY);
-        console.log("start: ", start.x, start.y);
         path.push({ x: currX, y: currY });
         if (currY - 1 >= 0 && !stepped) {
           if (
@@ -138,15 +129,4 @@ export class Pathfinder {
     }
     return [];
   }
-  // step(cell: coords, currStep: number) {
-  //   if (cell == this.end) return;
-
-  // }
-  // check(checkCell: coords, toStep: coords[], currStep: number) {
-  //   if (checkCell == this.end) this.found = true;
-  //   if (this.searchMatrix[checkCell.y][checkCell.x] == 0) {
-  //     this.searchMatrix[checkCell.y][checkCell.x] = currStep;
-  //     toStep.push({ x: checkCell.x, y: checkCell.y });
-  //   }
-  // }
 }

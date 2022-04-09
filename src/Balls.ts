@@ -11,6 +11,9 @@ export default class Balls {
   selectedCell: HTMLTableCellElement;
   selectedCoords: coords;
   pathfinder: Pathfinder;
+  query: number[] = [];
+  points: number = 0;
+  gameover: boolean = false;
 
   constructor(tid: string) {
     this.tableDOM = document.getElementById(tid) as HTMLTableElement;
@@ -18,8 +21,12 @@ export default class Balls {
     this.pathfinder = new Pathfinder(this.board);
     this.listeners();
     this.render();
+    this.generateQuery(3);
+    this.addFromQuery(3);
+    this.generateQuery(3);
   }
   createEmpty() {
+    this.points = 0;
     this.board = [];
     this.cells = [];
     for (let i = 0; i < this.rowsnum; i++) {
@@ -36,11 +43,9 @@ export default class Balls {
       }
       this.tableDOM.appendChild(row);
     }
-    this.board[0][0] = 1;
   }
   render() {
-    // this.board[5][5] = 3;
-    // console.table(this.board);
+    document.getElementById("points").innerText = String(this.points);
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
         this.cells[i][j].className =
@@ -61,29 +66,160 @@ export default class Balls {
         if (this.board[i][j] == 0) return false;
       }
     }
+    this.gameover = true;
     return true;
   }
-  generateRandomBalls(num: number) {
+  generateQuery(num: number) {
+    let queryTable = document.getElementById("query");
+    queryTable.innerHTML = "";
+    let tr = document.createElement("tr");
     for (let i = 0; i < num; i++) {
-      if (this.isFull()) return;
-      this.board.forEach((row) => {
-        if (!row.includes(0)) return;
-      });
       let color: number =
         Math.floor(Math.random() * (consts.colorsArr.length - 1)) + 1;
+      this.query.push(color);
+      let td = document.createElement("td");
+      td.classList.add(consts.colorsArr[color]);
+      td.classList.add("cell");
+      tr.appendChild(td);
+    }
+    queryTable.appendChild(tr);
+  }
+  addFromQuery(num: number) {
+    for (let i = 0; i < num; i++) {
+      if (this.isFull()) return;
+      let color: number = this.query.shift();
       let y = Math.floor(Math.random() * this.rowsnum);
       let x = Math.floor(Math.random() * this.colsnum);
       while (this.board[y][x] != 0) {
         y = Math.floor(Math.random() * this.rowsnum);
         x = Math.floor(Math.random() * this.colsnum);
       }
-      // console.log("color, y, x:", color, y, x);
       this.board[y][x] = color;
     }
+    this.render();
+  }
+  checkBoard() {
+    let toClear: coords[] = [];
+    for (let i = 0; i < this.board.length; i++) {
+      let numX = -1;
+      let countX = 0;
+      let numY = -1;
+      let countY = 0;
+      for (let j = 0; j < this.board.length; j++) {
+        let currX = this.board[i][j];
+        let currY = this.board[j][i];
+        if (currX !== 0) {
+          if (currX !== numX) {
+            numX = currX;
+            countX = 1;
+          } else {
+            countX++;
+            if (countX >= 5) {
+              for (let k = 0; k < countX; k++) {
+                if (!toClear.some((e) => e.y === i && e.x === j - k))
+                  toClear.push({ y: i, x: j - k });
+              }
+            }
+          }
+        } else {
+          numX = -1;
+          countX = 0;
+        }
+
+        if (currY !== 0) {
+          if (currY !== numY) {
+            numY = currY;
+            countY = 1;
+          } else {
+            countY++;
+            if (countY >= 5) {
+              for (let k = 0; k < countY; k++) {
+                if (!toClear.some((e) => e.y === j - k && e.x === i))
+                  toClear.push({ y: j - k, x: i });
+              }
+            }
+          }
+        } else {
+          numY = -1;
+          countY = 0;
+        }
+      }
+    }
+
+    for (let i = 0; i < this.board.length * 2; i++) {
+      let count = 0;
+      let num = -1;
+      for (let j = 0; j <= i; j++) {
+        let y = i - j;
+        if (j < this.board.length && y < this.board.length) {
+          let curr = this.board[y][j];
+          if (curr !== 0) {
+            if (curr !== num) {
+              num = curr;
+              count = 1;
+            } else {
+              count++;
+              if (count >= 5) {
+                for (let k = 0; k < count; k++) {
+                  if (!toClear.some((e) => e.y === y + k && e.x === j - k))
+                    toClear.push({ y: y + k, x: j - k });
+                }
+              }
+            }
+          } else {
+            num = -1;
+            count = 0;
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < this.board.length * 2; i++) {
+      let count = 0;
+      let num = -1;
+      for (let j = this.board.length - 1; j >= this.board.length - 1 - i; j--) {
+        let y = i - (this.board.length - 1 - j);
+        if (
+          j < this.board.length &&
+          j >= 0 &&
+          y < this.board.length &&
+          y >= 0
+        ) {
+          let curr = this.board[y][j];
+          if (curr !== 0) {
+            if (curr !== num) {
+              num = curr;
+              count = 1;
+            } else {
+              count++;
+              if (count >= 5) {
+                for (let k = 0; k < count; k++) {
+                  if (!toClear.some((e) => e.y === y + k && e.x === j + k))
+                    toClear.push({ y: y + k, x: j + k });
+                }
+              }
+            }
+          } else {
+            num = -1;
+            count = 0;
+          }
+        }
+      }
+    }
+
+    this.points += toClear.length;
+    for (let coords of toClear) {
+      this.board[coords.y][coords.x] = 0;
+    }
+    this.render();
+
+    if (toClear.length > 0) return true;
+    return false;
   }
   listeners() {
     document.getElementById("generate").addEventListener("click", () => {
-      this.generateRandomBalls(3);
+      this.generateQuery(3);
+      this.addFromQuery(3);
       this.render();
     });
     document.getElementById("clear").addEventListener("click", () => {
@@ -91,16 +227,12 @@ export default class Balls {
       this.render();
     });
     document.getElementById("find").addEventListener("click", () => {
-      this.pathfinder.findShortestPath(
-        { x: 0, y: 0 },
-        { x: 8, y: 8 },
-        this.board
-      );
+      this.checkBoard();
     });
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
         let cell = this.cells[i][j];
-        cell.addEventListener("click", (e) => {
+        cell.addEventListener("click", () => {
           if (this.board[i][j] !== 0) {
             if (this.isSelected) {
               this.selectedCell.classList.remove("selected");
@@ -118,17 +250,31 @@ export default class Balls {
               this.selectedCell = cell;
               this.selectedCoords = { x: j, y: i };
             }
+          } else {
+            if (this.isSelected) {
+              let path: coords[] = this.pathfinder.findShortestPath(
+                this.selectedCoords,
+                { x: j, y: i },
+                this.board
+              );
+              if (path.length > 0) {
+                this.board[i][j] =
+                  this.board[this.selectedCoords.y][this.selectedCoords.x];
+                this.board[this.selectedCoords.y][this.selectedCoords.x] = 0;
+                this.isSelected = false;
+                if (!this.checkBoard()) {
+                  this.addFromQuery(3);
+                  this.generateQuery(3);
+                }
+                this.checkBoard();
+                this.render();
+              }
+            }
           }
         });
-        // cell.addEventListener("mouseleave", () => {
-        //   for (let row of this.cells)
-        //     for (let c of row) c.classList.remove("path");
-        // });
         cell.addEventListener("mouseenter", () => {
           for (let row of this.cells)
             for (let c of row) c.classList.remove("path");
-
-          // console.log(j, i);
           if (this.isSelected) {
             let path: coords[] = this.pathfinder.findShortestPath(
               this.selectedCoords,
