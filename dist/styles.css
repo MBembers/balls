@@ -5,6 +5,8 @@ body,
 #board {
   width: 540px;
   height: 540px;
+  margin-left: 120px;
+  /* transform: rotate(120deg); */
 }
 #query {
   height: 60px;

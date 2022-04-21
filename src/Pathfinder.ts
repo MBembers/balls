@@ -1,15 +1,24 @@
 import { coords } from "./interfaces";
 
+/**
+ * Pathfinder is used to find a path between two points in 2d array.
+ * */
 export class Pathfinder {
   searchMatrix: number[][];
   found: boolean = false;
   start: coords;
   end: coords;
-
+  /**
+   * @param matrix 2d array of numbers to find path in
+   */
   constructor(matrix: number[][]) {
     this.setMatrix(matrix);
   }
-
+  /**
+   * Sets searchMatrix to a 2d array of -1, and 0.
+   * @param matrix 2d array of numbers to find path in.
+   * numbers other than 0 are converted to -1
+   */
   setMatrix(matrix: number[][]) {
     this.searchMatrix = new Array(matrix.length);
     for (let i = 0; i < matrix.length; i++) {
@@ -19,6 +28,13 @@ export class Pathfinder {
       }
     }
   }
+  /**
+   * Finds shortest path between two points in 2d array.
+   * @param start Coords of starting point
+   * @param end Coords of ending point
+   * @param matrix Optional 2d array to search in. If not given, uses searchMatrix
+   * @returns Array of coords containing all points of the path
+   */
   findShortestPath(start: coords, end: coords, matrix?: number[][]): coords[] {
     let currStep = 1;
     // start = start;

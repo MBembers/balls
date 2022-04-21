@@ -1,6 +1,7 @@
 import * as consts from "./consts";
 import { Pathfinder } from "./Pathfinder";
 import { coords } from "./interfaces";
+import { rotate } from "./decrators";
 export default class Balls {
   board: number[][];
   tableDOM: HTMLTableElement;
@@ -14,17 +15,24 @@ export default class Balls {
   query: number[] = [];
   points: number = 0;
   gameover: boolean = false;
+  rotate: number = -15;
 
+  /**
+   * @param tid html id of table element in which the game will be played
+   */
   constructor(tid: string) {
     this.tableDOM = document.getElementById(tid) as HTMLTableElement;
     this.createEmpty();
     this.pathfinder = new Pathfinder(this.board);
     this.listeners();
     this.render();
-    this.generateQuery(3);
-    this.addFromQuery(3);
+    this.generateQuery(5);
+    this.addFromQuery(5);
     this.generateQuery(3);
   }
+  /**
+   * Setups empty html table for the game
+   */
   createEmpty() {
     this.points = 0;
     this.board = [];
@@ -44,6 +52,9 @@ export default class Balls {
       this.tableDOM.appendChild(row);
     }
   }
+  /**
+   * updates board and point counter on the screen
+   */
   render() {
     document.getElementById("points").innerText = String(this.points);
     for (let i = 0; i < this.rowsnum; i++) {
@@ -52,7 +63,11 @@ export default class Balls {
           "cell " + consts.colorsArr[this.board[i][j]];
       }
     }
+    this.tableDOM.style.transform = "rotate(" + this.rotate + "deg)";
   }
+  /**
+   * clears boards
+   */
   clear() {
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
@@ -60,6 +75,9 @@ export default class Balls {
       }
     }
   }
+  /**
+   * returns true when board is full
+   */
   isFull(): boolean {
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
@@ -69,6 +87,10 @@ export default class Balls {
     this.gameover = true;
     return true;
   }
+  /**
+   * generates a query of balls to be added on the board
+   * @param num length of the query
+   */
   generateQuery(num: number) {
     let queryTable = document.getElementById("query");
     queryTable.innerHTML = "";
@@ -84,6 +106,11 @@ export default class Balls {
     }
     queryTable.appendChild(tr);
   }
+  /**
+   * adds balls from query to board
+   * @param num number of balls to add from query to board
+   */
+  @rotate
   addFromQuery(num: number) {
     for (let i = 0; i < num; i++) {
       if (this.isFull()) return;
@@ -98,7 +125,10 @@ export default class Balls {
     }
     this.render();
   }
-  checkBoard() {
+  /**
+   * returns true when any balls were cleared and adds points equal to the number of cleared balls
+   */
+  checkBoard(): boolean {
     let toClear: coords[] = [];
     for (let i = 0; i < this.board.length; i++) {
       let numX = -1;
@@ -216,19 +246,23 @@ export default class Balls {
     if (toClear.length > 0) return true;
     return false;
   }
+  /**
+   * adds listeners to cells and buttons
+   * @todo amongas
+   */
   listeners() {
-    document.getElementById("generate").addEventListener("click", () => {
-      this.generateQuery(3);
-      this.addFromQuery(3);
-      this.render();
-    });
-    document.getElementById("clear").addEventListener("click", () => {
-      this.clear();
-      this.render();
-    });
-    document.getElementById("find").addEventListener("click", () => {
-      this.checkBoard();
-    });
+    // document.getElementById("generate").addEventListener("click", () => {
+    //   this.generateQuery(3);
+    //   this.addFromQuery(3);
+    //   this.render();
+    // });
+    // document.getElementById("clear").addEventListener("click", () => {
+    //   this.clear();
+    //   this.render();
+    // });
+    // document.getElementById("find").addEventListener("click", () => {
+    //   this.checkBoard();
+    // });
     for (let i = 0; i < this.rowsnum; i++) {
       for (let j = 0; j < this.colsnum; j++) {
         let cell = this.cells[i][j];
@@ -263,6 +297,7 @@ export default class Balls {
                 this.board[this.selectedCoords.y][this.selectedCoords.x] = 0;
                 this.isSelected = false;
                 if (!this.checkBoard()) {
+                  console.log(this.rotate);
                   this.addFromQuery(3);
                   this.generateQuery(3);
                 }

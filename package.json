@@ -6,12 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "documentation": "npx typedoc --entryPointStrategy expand ./src"
   },
   "author": "MBembers",
   "license": "ISC",
   "devDependencies": {
     "ts-loader": "^9.2.8",
+    "typedoc": "^0.22.15",
     "typescript": "^4.6.2"
   },
   "dependencies": {
